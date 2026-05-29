@@ -1,0 +1,149 @@
+{% extends "tracker/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<style>
+body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #f5f5f5;
+}
+.budget-card {
+    background: rgba(31, 30, 30, 0.08);
+    border-radius: 20px;
+    padding: 40px 30px;
+    max-width: 750px;
+    margin: 60px auto;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
+    transition: transform 0.3s ease;
+}
+.budget-card:hover {
+    transform: translateY(-5px);
+}
+h2 {
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+label {
+    font-weight: 500;
+}
+input, select {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    color: #fff !important;
+    padding: 10px 15px;
+}
+input:focus {
+    box-shadow: 0 0 10px rgba(37, 117, 252, 0.7);
+    outline: none;
+}
+.btn-custom {
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
+    border: none;
+    font-weight: bold;
+    border-radius: 12px;
+    padding: 12px;
+    color: #fff;
+    width: 100%;
+    transition: 0.3s;
+}
+.btn-custom:hover {
+    background: linear-gradient(90deg, #2575fc, #6a11cb);
+}
+.progress {
+    height: 28px;
+    border-radius: 15px;
+    overflow: hidden;
+    background-color: rgba(255,255,255,0.2);
+}
+.progress-bar {
+    font-weight: bold;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+.alert-budget {
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 15px;
+}
+.budget-stats {
+    margin-top: 25px;
+    padding: 15px 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.budget-stats h5 {
+    margin: 0;
+    font-weight: 500;
+    color: #eaeaea;
+}
+</style>
+
+<div class="budget-card">
+    <h2 class="text-center mb-4">💰 Monthly Budget Tracker</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.month.label_tag }}
+            {{ form.month }}
+        </div>
+        <div class="mb-3">
+            {{ form.amount.label_tag }}
+            {{ form.amount }}
+        </div>
+        <button type="submit" class="btn-custom">💾 Save Budget</button>
+    </form>
+
+    {% if budget_amount %}
+        <div class="budget-stats">
+            <h5>Budget: ₹{{ budget_amount|floatformat:2|intcomma }}</h5>
+            <h5>Spent: ₹{{ spent|floatformat:2|intcomma }}</h5>
+        </div>
+
+        <div class="progress mt-3 mb-2">
+            <div class="progress-bar {% if spent > budget_amount %}bg-danger{% else %}bg-success{% endif %}" 
+                 role="progressbar" 
+                 style="width: {{ percent|floatformat:0 }}%;" 
+                 aria-valuenow="{{ percent|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100">
+                {{ percent|floatformat:0 }}%
+            </div>
+        </div>
+
+        {% if spent > budget_amount %}
+            <div class="alert-budget bg-danger text-white">
+                ⚠️ You have exceeded your budget!
+            </div>
+        {% elif percent > 80 %}
+            <div class="alert-budget bg-warning text-dark">
+                ⚠️ Careful! You’ve used {{ percent|floatformat:0 }}% of your budget.
+            </div>
+        {% else %}
+            <div class="alert-budget bg-success text-white">
+                ✅ You are within your budget. Keep it up!
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="text-center text-light">Set your monthly budget to start tracking your expenses.</p>
+    {% endif %}
+
+    
+</div>
+{% endblock %}

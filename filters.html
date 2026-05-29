@@ -1,0 +1,85 @@
+<!-- tracker/templates/tracker/filters.html -->
+<div class="card filter-card shadow-sm border-0 rounded-4 mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center bg-gradient fw-semibold text-white">
+    <span><i class="bi bi-funnel"></i> Filters</span>
+    <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#filterForm">
+      <i class="bi bi-chevron-down"></i>
+    </button>
+  </div>
+  <div id="filterForm" class="collapse show">
+    <div class="card-body">
+      <form method="get" action="">
+        <div class="row g-3 align-items-end">
+          
+          <!-- Category -->
+          <div class="col-md-3">
+            <label for="category" class="form-label fw-semibold">Category</label>
+            <select name="category" id="category" class="form-select form-select-sm">
+              <option value="">All</option>
+              {% for category in categories %}
+                <option value="{{ category.id }}" {% if category.id|stringformat:"s" == selected_category %}selected{% endif %}>
+                  {{ category.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Start Date -->
+          <div class="col-md-3">
+            <label for="start_date" class="form-label fw-semibold">From</label>
+            <input type="date" name="start_date" id="start_date" class="form-control form-control-sm" value="{{ start_date }}">
+          </div>
+
+          <!-- End Date -->
+          <div class="col-md-3">
+            <label for="end_date" class="form-label fw-semibold">To</label>
+            <input type="date" name="end_date" id="end_date" class="form-control form-control-sm" value="{{ end_date }}">
+          </div>
+
+          <!-- Buttons -->
+          <div class="col-md-3 text-end">
+            <button type="submit" class="btn btn-primary btn-sm px-4 me-2">
+              <i class="bi bi-check2-circle"></i> Apply
+            </button>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm px-3">
+              <i class="bi bi-arrow-counterclockwise"></i> Reset
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+/* 🌈 Gradient Header */
+.filter-card .card-header {
+  background: linear-gradient(90deg, #524c58ff, #9b9c9fff);
+  border-bottom: none;
+}
+
+/* 🌓 Light/Dark Mode */
+body.light .filter-card {
+  background: #545151ff;
+  color: #efe9e9ff;
+}
+body.dark .filter-card {
+  background: rgba(83, 73, 73, 0.06);
+  color: #2e2d2dff;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Inputs */
+.form-control,
+.form-select {
+  border-radius: 10px;
+}
+
+/* Button Hover Effects */
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+  transition: 0.2s ease-in-out;
+}
+</style>

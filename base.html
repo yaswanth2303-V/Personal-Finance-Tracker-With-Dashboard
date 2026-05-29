@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Finance Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    /* 🌈 Animated Gradient Background */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #57595bff, #ccccccff);
+      background-size: 300% 300%;
+      animation: gradient 10s ease infinite;
+      color: #f1f1f1;
+      transition: all 0.5s;
+      margin: 0;
+      padding: 0;
+    }
+
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* 🌙 Light Mode */
+    body.light {
+      background: linear-gradient(135deg, #574f4fff, #000000ff);
+      color: #000000ff;
+    }
+
+    /* 🧭 Sidebar */
+    .sidebar {
+      height: 100vh;
+      width: 240px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: rgba(38, 33, 33, 0.75);
+      backdrop-filter: blur(8px);
+      padding-top: 20px;
+      transition: all 0.3s;
+      z-index: 100;
+    }
+
+    body.light .sidebar {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .sidebar-header {
+      color: rgba(255, 255, 255, 1);
+      text-align: center;
+      font-weight: bold;
+      font-size: 22px;
+      margin-bottom: 25px;
+    }
+
+    .sidebar a {
+      padding: 12px 20px;
+      color: #ffffffff;
+      text-decoration: none;
+      display: block;
+      transition: 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #495057;
+      border-radius: 8px;
+    }
+
+    body.light .sidebar a {
+      color: #323131ff;
+    }
+
+    /* 📦 Main Content */
+    .content {
+      margin-left: 260px;
+      padding: 30px;
+    }
+
+    /* ⚙️ Top Control Bar */
+    .top-controls {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 15px;
+      padding: 10px 25px;
+      background: rgba(0, 0, 0, 1);
+      backdrop-filter: blur(6px);
+      border-radius: 12px;
+      margin-bottom: 25px;
+    }
+
+    body.light .top-controls {
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    select, button {
+      border-radius: 8px !important;
+    }
+
+    /* 🌟 Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      .content {
+        margin-left: 0;
+        padding-top: 20px;
+      }
+      .top-controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🧭 Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">💰 PERSONAL FINANCE TRACKER</div>
+    <a href="{% url 'dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="{% url 'transactions_list' %}"><i class="bi bi-cash-stack"></i> Transactions</a>
+    <a href="{% url 'budget' %}"><i class="bi bi-wallet2"></i> Budget</a>
+    
+  </div>
+
+  <!-- 🧩 Main Content -->
+  <div class="content">
+    <!-- 🔧 Top Controls -->
+    <div class="top-controls">
+      <!-- 💱 Currency Selection -->
+      <select id="currencySelect" class="form-select form-select-sm" style="width:auto;">
+        <option value="INR">INR ₹</option>
+        <option value="USD">USD $</option>
+        <option value="EUR">EUR €</option>
+      </select>
+  
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const select = document.getElementById("currencySelect");
+  const currencyKey = "selectedCurrency";
+
+  // Load saved currency
+  const savedCurrency = localStorage.getItem(currencyKey) || "INR";
+  select.value = savedCurrency;
+
+  // Change event
+  select.addEventListener("change", function() {
+    const selected = this.value;
+    localStorage.setItem(currencyKey, selected);
+    window.dispatchEvent(new Event("currencyChanged")); // notify all pages
+  });
+
+  // Make available globally
+  window.currentCurrency = savedCurrency;
+});
+</script>
+
+      <!-- 💾 Export Button -->
+      <button id="exportBtn" class="btn btn-success btn-sm">
+        <i class="bi bi-download"></i> Export
+      </button>
+
+      <!-- 🌙 Theme Toggle -->
+      <button id="themeToggle" class="btn btn-outline-light btn-sm">
+        <i class="bi bi-moon"></i>
+      </button>
+    </div>
+
+    {% block content %}{% endblock %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    /* 🌙 Theme Toggle */
+    const themeBtn = document.getElementById('themeToggle');
+    themeBtn.addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      const icon = themeBtn.querySelector('i');
+      icon.classList.toggle('bi-moon');
+      icon.classList.toggle('bi-sun');
+      localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+    });
+
+    // Restore theme
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light');
+      themeBtn.querySelector('i').classList.replace('bi-moon', 'bi-sun');
+    }
+
+    /* 💱 Currency Selector */
+    const currencySelect = document.getElementById('currencySelect');
+    const currencySymbols = { INR: '₹', USD: '$', EUR: '€' };
+
+    // Function to update all currency symbols dynamically
+    function updateCurrencySymbols(selected) {
+      document.querySelectorAll('.currency-symbol').forEach(el => {
+        el.textContent = currencySymbols[selected];
+      });
+    }
+
+    // On change
+    currencySelect.addEventListener('change', (e) => {
+      const selected = e.target.value;
+      localStorage.setItem('currency', selected);
+      updateCurrencySymbols(selected);
+    });
+
+    // Restore last saved currency
+    const savedCurrency = localStorage.getItem('currency') || 'INR';
+    currencySelect.value = savedCurrency;
+    updateCurrencySymbols(savedCurrency);
+
+    /* 💾 Export CSV */
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      window.location.href = "{% url 'export_csv' %}";
+    });
+  </script>
+</body>
+</html>

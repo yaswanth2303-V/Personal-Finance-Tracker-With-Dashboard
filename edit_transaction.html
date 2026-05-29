@@ -1,0 +1,45 @@
+{% extends "tracker/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Edit Transaction</h2>
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label>Description:</label>
+            <input type="text" name="description" class="form-control" value="{{ transaction.description }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Amount:</label>
+            <input type="number" name="amount" step="0.01" class="form-control" value="{{ transaction.amount }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Type:</label>
+            <select name="transaction_type" class="form-select">
+                <option value="Income" {% if transaction.type == "Income" %}selected{% endif %}>Income</option>
+                <option value="Expense" {% if transaction.type == "Expense" %}selected{% endif %}>Expense</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Date:</label>
+            <input type="date" name="date" class="form-control" value="{{ transaction.date|date:'Y-m-d' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Category:</label>
+            <select name="category" class="form-select">
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if transaction.category and transaction.category.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Transaction</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
